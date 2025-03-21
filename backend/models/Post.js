@@ -1,33 +1,15 @@
-const mongoose=require('mongoose')
+import mongoose from "mongoose";
 
-const PostSchema = new mongoose.Schema({
-    title:
-    {
-        type:String,
-        required:true,
-        unique:true
-    },
-    desc :{
-        type:String,
-        required:true,
-        
-    },
-    photo: {
-        type:String,
-        required:true
+const PostSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    desc: { type: String, required: true },
+    content: { type: String, required: true }, // ✅ Ensure content is required
+    author: { type: String, required: true },  // ✅ Ensure author is required (Use ObjectId for users if needed)
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // ✅ Ensure userId is linked
+  },
+  { timestamps: true }
+);
 
-    },
-    username:{
-        type:String,
-        required:true
-    },
-    userId :{
-        type:String,
-        required:true,
-    },
-    categories :{
-        type:Array,
-
-    },
-
-},{timestamps:true})
+const Post = mongoose.model("Post", PostSchema);
+export default Post;

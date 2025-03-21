@@ -1,94 +1,162 @@
-const express = require('express')
-const router = express.Router()
-const User = require('../models/User')
+import express from "express";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+import nodemailer from "nodemailer";
+import User from "../models/User.js";
 
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+dotenv.config();
+const router = express.Router();
 
-//Register
-router.post('/register', async (req, res) => {
+// Nodemailer transporter setup
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,  // Your Gmail address
+        pass: process.env.EMAIL_PASS,  // App Password from Gmail
+    },
+});
+
+// Helper function for errors
+const sendError = (res, message, status = 400) => {
+    console.log(`Error: ${message}`);
+    return res.status(status).json({ message });
+};
+
+// 📌 User Registration (With Welcome Email)
+router.post("/register", async (req, res) => {
     try {
         const { username, email, password } = req.body;
-
-        // Validate input fields
         if (!username || !email || !password) {
-            return res.status(400).json({ message: "All fields are required" });
+            return sendError(res, "All fields are required");
         }
 
-        // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: "User already exists with this email" });
+            return sendError(res, "User already exists");
         }
 
-        // Hash the password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Create new user
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({ username, email, password: hashedPassword });
-        const savedUser = await newUser.save();
+        await newUser.save();
 
-        // Remove password before sending response
-        const userResponse = { ...savedUser._doc };
-        delete userResponse.password;
+        console.log(`User Registered: ${username} (Email: ${email})`);
 
-        res.status(201).json({ message: "User registered successfully", user: userResponse });
+        // 📩 Send welcome email
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Welcome to Untold Voice",
+            text: `Hello ${username},\n\nWelcome to Untold Voice! We're excited to have you on board.\n\nBest Regards,\nUntold Voice Team`,
+        });
 
+        res.status(201).json({ message: "User registered successfully. Check your email!" });
     } catch (err) {
-        console.error("Registration Error:", err);
-        res.status(500).json({ message: "Server error, please try again later" });
+        console.error("Server Error (Register):", err);
+        res.status(500).json({ message: "Server error" });
     }
 });
 
-//Login
-router.post('/login', async (req, res) => {
+// 📌 User Login
+router.post("/login", async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.body.email })
-        if (!user)
-            return res.status(404).json({ message: 'User not found' })
-        const match = await bcrypt.compare(req.body.password, user.password)
-        if (!match) {
-            return res.status(401).json({ message: 'wrong password' })
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return sendError(res, "All fields are required");
         }
-        const token = jwt.sign({ __id, username: user.username, email: user.email }, process.env.SECRET, { expiresIn: "3d" })
 
-        const { password, ...info } = user._doc
-        res.cookie("token", token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'None',
-        }).status(200).json(info)
+        const user = await User.findOne({ email });
+        if (!user) {
+            return sendError(res, "Invalid email or password");
+        }
 
-    }
-    catch (err) {
-        res.status(500).json(err)
-    }
-})
-//Logout
-router.get('/logout', (req, res) => {
-    try {
-        res.clearCookie('token', {
-            sameSite: 'none',
-            secure: true,
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return sendError(res, "Invalid email or password");
+        }
 
+        const token = jwt.sign({ id: user._id }, process.env.SECRET, { expiresIn: "1h" });
+
+        console.log(`User Logged In: ${user.username} (Email: ${user.email})`);
+
+        console.log("token is : ",token)
+
+        res.status(200)
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production", // ✅ Only secure in production
+          sameSite: "strict"
         })
-            .status(200)
-            .send("user logged out successfully")
+        .json({ message: "Login successful" });
+      
+    } catch (err) {
+        console.error("Server Error (Login):", err);
+        res.status(500).json({ message: "Server error" });
     }
-    catch (err) {
-        res.status(500).json(err)
-    }
-})
+});
 
-//Refetch
-router.get("/refetch", (req, res) => {
-    const token = req.cookies.token
-    jwt.verify(token, process.env.SECRET, {}, async (err, data) => {
-        if (err) {
-            return res.status(404).json(err)
+// 📌 Forgot Password (Send Reset Email)
+router.post("/forgot-password", async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return sendError(res, "User with this email does not exist");
         }
-        res.status(200).json(data)
-    })
-})
-module.exports = router;  // ✅ Correct
+
+        // Generate a password reset token (valid for 15 mins)
+        const resetToken = jwt.sign({ id: user._id }, process.env.RESET_SECRET, { expiresIn: "15m" });
+
+        // 📩 Send password reset email
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Password Reset Request",
+            text: `Hello,\n\nClick the link below to reset your password. The link is valid for 15 minutes:\n\n${process.env.FRONTEND_URL}/reset-password/${resetToken}\n\nIf you did not request this, please ignore it.\n\nBest Regards,\nUntold Voice Team`,
+        });
+
+        console.log(`Password reset email sent to ${email}`);
+        res.status(200).json({ message: "Password reset email sent. Check your inbox!" });
+    } catch (err) {
+        console.error("Server Error (Forgot Password):", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// 📌 Reset Password (Change Password)
+router.post("/reset-password/:token", async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { newPassword } = req.body;
+
+        if (!newPassword) {
+            return sendError(res, "New password is required");
+        }
+
+        const decoded = jwt.verify(token, process.env.RESET_SECRET);
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return sendError(res, "Invalid or expired token");
+        }
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        console.log(`Password reset successful for user: ${user.email}`);
+        res.status(200).json({ message: "Password reset successful. You can now log in." });
+    } catch (err) {
+        console.error("Server Error (Reset Password):", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// 📌 User Logout
+router.post("/logout", (req, res) => {
+    res.clearCookie("token");
+    console.log("User Logged Out");
+    res.status(200).json({ message: "Logout successful" });
+});
+
+export default router;

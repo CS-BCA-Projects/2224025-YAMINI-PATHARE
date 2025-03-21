@@ -1,10 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const User = require('../models/User');
-const bcrypt = require('bcrypt');
-const Post = require('../models/Post'); // ✅ Fix lowercase 'post' -> 'Post'
-const Comment = require('../models/Comments');
-const verifyToken = require('../verifyToken');
+import express from "express";
+import User from "../models/User.js";
+import bcrypt from "bcryptjs"; // Use bcryptjs instead of bcrypt for compatibility
+import Post from "../models/Post.js";
+import Comment from "../models/Comment.js"; // ✅ Correct
+import verifyToken from "../verifyToken.js";
+
+const router = express.Router(); // Fix casing issue (Router -> router)
+
 
 // Update User
 router.put("/:id", verifyToken, async (req, res) => {
@@ -45,5 +47,4 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-module.exports = router; // ✅ Fix module.export -> module.exports
- 
+export default router; 

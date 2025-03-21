@@ -1,15 +1,19 @@
-const jwt = require('jsonwebtoken');
-const verifyToken = (req, res, next) => {
-    const token = req.cookies.token
-    if (!token) {
-return res.status(401).json("you are not authenticated");
+import jwt from "jsonwebtoken";
 
-}
-jwt.verify(token, process.env.SECRET_KEY, (err, data ) => {
-    if (err) {
-        return res.status(403).json("token is invalid");}
-        req.userID =data._id
-        next()
-})
-}
-module.exports = verifyToken
+const verifyToken = (req, res, next) => {
+  const token = req.cookies.token; // ✅ Read token from cookies
+
+  if (!token) {
+    return res.status(401).json({ message: "No token found, please login again" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.SECRET); // ✅ Ensure correct env variable
+    req.user = decoded; // ✅ Store entire user object
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid token" });
+  }
+};
+
+export default verifyToken;

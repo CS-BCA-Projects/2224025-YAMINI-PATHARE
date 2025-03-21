@@ -1,56 +1,29 @@
-const express = require('express');
-const Router = express.Router();
-const User = require('../models/User')
-const bcrypt = require('bcrypt')
-const Post = require('../models/Post')
-const Comments = require('../models/Comments')
-const verifyToken = require('../verifyToken')
+import express from "express";
+import Comment from "../models/Comment.js"; // ✅ Correct
 
-//Create 
-Router.post("/create", verifyToken,async(req ,res) => {
-    try{
-        const newComment = new Comments( req.body )
-        const savedComment = await newComment.save()
-        res.status(200).json(savedComment)
-    }
-    catch(err){
-        res.status(500).json(err)
-    }
-})
-//update
-Router.put("/:id", verifyToken, async (req, res) => {
-    try {
-        const updateComment = await Comments.findbyIdAndUpdate(req.params.id,{$set:req.body},{ new:true})
-        res.status(200).json(updateComment)
+import verifyToken from "../verifyToken.js";
 
-    }
-    catch (err) {
-        res.status(500).json(err)
-    }
-})
+const router = express.Router();
 
-//delete
-Router.delete("/:id",  async (req, res) => {   
-    try{
- await Comment.findByIdAndDelete(req.params.id)
- res.status(200).json("comment deleted")
+// Get comments for a post
+router.get("/:postId", async (req, res) => {
+  try {
+    const comments = await Comment.find({ post: req.params.postId }).populate("author", "username");
+    res.status(200).json(comments);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
-    }
-    catch(err) {
-        res.status(500).json(err)
-    }
- })
+// Add a new comment
+router.post("/:postId", verifyToken, async (req, res) => {
+  try {
+    const newComment = new Comment({ text: req.body.text, post: req.params.postId, author: req.user.id });
+    await newComment.save();
+    res.status(201).json(newComment);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
 
- //get comments
-Router.get("/post/:postId", async(req,res) => {
-    try{
-const comments =await Comment.find({PostId:req.params.postId})
-res.status(200).json(comments)
-    }
-
-        catch(err){
-            res.status(500).json(err)
-        }
-
-    })
-module.exports = Router
+export default router;
