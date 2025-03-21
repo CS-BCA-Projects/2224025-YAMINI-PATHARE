@@ -3,6 +3,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
+
 const CreatePost = () => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -36,11 +38,10 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="create-post-container">
-      <h2 className="header">Create a New Post</h2>
-      <form className="post-form" onSubmit={handleSubmit}>
+    <div>
+      <h2>Create a New Post</h2>
+      <form onSubmit={handleSubmit}>
         <input
-          className="input-box"
           type="text"
           placeholder="Title"
           value={title}
@@ -48,14 +49,12 @@ const CreatePost = () => {
           required
         />
         <textarea
-          className="input-box"
           placeholder="Short Description"
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           required
         />
         <textarea
-          className="input-box"
           placeholder="Content"
           value={content}
           onChange={(e) => setContent(e.target.value)}

@@ -1,15 +1,15 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { UserContext } from "../context/UserContext";
-import "./MyLogin.css"; // Same CSS use ho raha hai
+import { UserContext } from "../context/UserContext"; // ✅ Correct Context Import
+import "./MyLogin.css"; // ✅ Ensure CSS is applied
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { setUser } = useContext(UserContext); // Context se setUser le rahe hain
+  const { setUser } = useContext(UserContext); // ✅ Fetch setUser from Context
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -18,16 +18,17 @@ const Login = () => {
     setError(null);
 
     try {
-      const res = await axios.post("http://localhost:8000/api/auth/login", {
-        email,
-        password,
-      });
+      const { data } = await axios.post(
+        "http://localhost:8000/api/auth/login",
+        { email, password },
+        { withCredentials: true } // ✅ Ensure cookies are sent
+      );
 
-      // **UserContext Me Save Karna**
-      setUser(res.data);
-      localStorage.setItem("user", JSON.stringify(res.data)); // LocalStorage me save karo
+      // ✅ Save user in Context & LocalStorage
+      setUser(data);
+      localStorage.setItem("user", JSON.stringify(data));
 
-      navigate("/profile"); // Login ke baad profile page pe redirect ho
+      navigate("/myblogs"); // ✅ Redirect after successful login
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials, try again.");
     } finally {
@@ -38,6 +39,8 @@ const Login = () => {
   return (
     <div className="login-container">
       <h2>Login</h2>
+
+      {/* ✅ Show error messages if login fails */}
       {error && <p className="error-message">{error}</p>}
 
       <form onSubmit={handleLogin}>

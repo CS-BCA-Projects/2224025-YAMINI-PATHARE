@@ -52,6 +52,7 @@ router.get("/", verifyToken, async (req, res) => {
 router.get("/myblogs", verifyToken, async (req, res) => {
     try {
         const userId = req.user.id; // ✅ Corrected from req.user._id
+
         const userPosts = await Post.find({ userId }).populate("userId");
         res.status(200).json(userPosts);
     } catch (error) {
