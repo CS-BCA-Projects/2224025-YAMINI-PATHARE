@@ -34,6 +34,8 @@ console.log("MONGO_URL:", process.env.MONGO_URL);
 app.use(express.json());
 app.use(cookieParser());
 
+
+
 // Serve static images
 app.use("/images", express.static(path.join(__dirname, "/images")));
 

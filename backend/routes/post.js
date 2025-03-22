@@ -7,7 +7,6 @@ const router = express.Router();
 
 // ✅ Create Post
 router.post("/create", verifyToken, async (req, res) => {
-    console.log("I am here")
     try {
         const { title, desc, content } = req.body;
 
@@ -15,7 +14,7 @@ router.post("/create", verifyToken, async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const user = await User.findById(req.user.id); // ✅ Use req.user.id from verifyToken.js
+        const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -24,23 +23,22 @@ router.post("/create", verifyToken, async (req, res) => {
             title,
             desc,
             content,
-            author: user.username, // ✅ Set author from logged-in user
-            userId: user._id, // ✅ Assign userId automatically
+            author: user.username,
+            userId: user._id,
         });
 
         await newPost.save();
-        res.status(201).json(newPost);
+        res.status(201).json({ message: "Post created successfully", post: newPost });
     } catch (err) {
         console.error("Error creating post:", err);
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
-// ✅ Fetch all blogs (user's and others)
+// ✅ Fetch all blogs
 router.get("/", verifyToken, async (req, res) => {
-    console.log("I am here")
     try {
-        const posts = await Post.find().populate("userId");
+        const posts = await Post.find().populate("userId", "username");
         res.status(200).json(posts);
     } catch (error) {
         console.error("Error fetching posts:", error);
@@ -48,12 +46,10 @@ router.get("/", verifyToken, async (req, res) => {
     }
 });
 
-// ✅ Fetch only the logged-in user's blogs
+// ✅ Fetch only logged-in user's blogs
 router.get("/myblogs", verifyToken, async (req, res) => {
     try {
-        const userId = req.user.id; // ✅ Corrected from req.user._id
-
-        const userPosts = await Post.find({ userId }).populate("userId");
+        const userPosts = await Post.find({ userId: req.user.id }).populate("userId", "username");
         res.status(200).json(userPosts);
     } catch (error) {
         console.error("Error fetching user blogs:", error);
@@ -61,7 +57,7 @@ router.get("/myblogs", verifyToken, async (req, res) => {
     }
 });
 
-// GET a single blog post by ID
+// ✅ Fetch a single blog post by ID
 router.get("/:id", async (req, res) => {
     try {
         const post = await Post.findById(req.params.id).populate("userId", "username");
@@ -81,18 +77,21 @@ router.put("/:id", verifyToken, async (req, res) => {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ message: "Post not found" });
 
-        if (post.userId.toString() !== req.user.id) { // ✅ Fixed from req.userID
+        if (post.userId.toString() !== req.user.id) {
             return res.status(403).json({ message: "Unauthorized to update this post" });
         }
 
-        post.title = req.body.title || post.title;
-        post.desc = req.body.desc || post.desc;
+        const { title, desc, content } = req.body;
+
+        post.title = title || post.title;
+        post.desc = desc || post.desc;
+        post.content = content || post.content;
 
         const updatedPost = await post.save();
-        res.status(200).json(updatedPost);
+        res.status(200).json({ message: "Post updated successfully", post: updatedPost });
     } catch (err) {
         console.error("Error updating post:", err);
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: "Internal Server Error" });
     }
 });
 
@@ -102,15 +101,15 @@ router.delete("/:id", verifyToken, async (req, res) => {
         const post = await Post.findById(req.params.id);
         if (!post) return res.status(404).json({ message: "Post not found" });
 
-        if (post.userId.toString() !== req.user.id) { // ✅ Fixed from req.userID
+        if (post.userId.toString() !== req.user.id) {
             return res.status(403).json({ message: "Unauthorized to delete this post" });
         }
 
-        await Post.findByIdAndDelete(req.params.id);
+        await post.deleteOne();
         res.status(200).json({ message: "Post deleted successfully" });
     } catch (err) {
         console.error("Error deleting post:", err);
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message: "Internal Server Error" });
     }
 });
 

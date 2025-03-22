@@ -31,7 +31,7 @@ const CreatePost = () => {
       );
 
       console.log("Post Created:", data);
-      navigate(`/post/${data._id}`);
+      navigate(`/post/${data.post._id}`);
     } catch (err) {
       console.error("Error creating post:", err.response?.data?.message || err.message);
     }

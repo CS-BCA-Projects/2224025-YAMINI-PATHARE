@@ -38,6 +38,31 @@ const MyBlogs = () => {
     fetchBlogs();
   }, []);
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this blog?")) return;
+  
+    try {
+      const response = await fetch(`http://localhost:8000/api/posts/${id}`, {
+        method: "DELETE",
+        credentials: "include", // ✅ Important for sending cookies
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`, // ✅ Send JWT token
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete blog");
+      }
+  
+      // ✅ Remove deleted blog from state
+      setMyBlogs(myBlogs.filter((blog) => blog._id !== id));
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+      alert("Failed to delete the blog. Please try again.");
+    }
+  };
+  
+
   return (
     <div className="container-fluid min-vh-100 bg-light">
       <div className="row">
@@ -84,9 +109,14 @@ const MyBlogs = () => {
                           <div className="card-body">
                             <h5 className="card-title text-primary">{blog.title}</h5>
                             <p className="card-text text-secondary">{blog.desc}</p>
-                            <Link to={`/post/${blog._id}`} className="btn btn-outline-primary">
-                              Read More →
-                            </Link>
+                            <div className="d-flex justify-content-between">
+                              <Link to={`/post/${blog._id}`} className="btn btn-outline-primary">
+                                Read More →
+                              </Link>
+                              <button className="btn btn-danger" onClick={() => handleDelete(blog._id)}>
+                                🗑 Delete
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
