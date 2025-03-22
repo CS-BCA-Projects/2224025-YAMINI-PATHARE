@@ -17,24 +17,28 @@ const Login = () => {
     setLoading(true);
     setError(null);
 
+    console.log("Sending login request:", { email, password });
+
     try {
-      const { data } = await axios.post(
-        "http://localhost:8000/api/auth/login",
-        { email, password },
-        { withCredentials: true } // ✅ Ensure cookies are sent
-      );
+        const { data } = await axios.post(
+            "http://localhost:8000/api/auth/login",
+            { email, password },
+            { withCredentials: true }
+        );
 
-      // ✅ Save user in Context & LocalStorage
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
+        console.log("Login successful:", data);
 
-      navigate("/myblogs"); // ✅ Redirect after successful login
+        setUser(data);
+        localStorage.setItem("user", JSON.stringify(data));
+
+        navigate("/myblogs");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials, try again.");
+        console.error("Login error:", err.response?.data || err.message);
+        setError(err.response?.data?.message || "Invalid credentials, try again.");
     } finally {
-      setLoading(false);
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className="login-container">

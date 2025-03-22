@@ -19,7 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/post/:id" element={<PostDetails />} />
-        <Route path="/profile" element={<Profile />} />
+        
 
         {/* Nested Routing for MyBlogs */}
         <Route path="/myblogs/*" element={<MyBlogs />} />
