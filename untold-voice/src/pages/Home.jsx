@@ -6,26 +6,6 @@ import { motion } from "framer-motion";
 import "./MyHome.css";
 
 const Home = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const { data } = await axios.get("http://localhost:8000/api/posts", {
-          withCredentials: true, // ✅ Ensure authentication cookies are sent
-        });
-        setPosts(data);
-      } catch (err) {
-        setError("Failed to fetch posts. Please check your connection.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, []);
 
   return (
     <div className="home-container">
@@ -80,38 +60,6 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* Blog Posts Section */}
-      <section className="blog-section">
-        <h2>Latest Blogs</h2>
-        {loading ? (
-          <p>Loading blogs...</p>
-        ) : error ? (
-          <p className="error-message">{error}</p>
-        ) : (
-          <div className="blog-grid">
-            {posts.length === 0 ? (
-              <p>No blogs available. Be the first to share your story!</p>
-            ) : (
-              posts.map((post) => (
-                <motion.div 
-                  key={post._id} 
-                  className="blog-card"
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <h3>{post.title}</h3>
-                  <p>{post.desc}</p>
-                  <Link to={`/post/${post._id}`} className="read-more">
-                   Read More
-                  </Link>
-
-                  
-                </motion.div>
-              ))
-            )}
-          </div>
-        )}
-      </section>
     </div>
   );
 };

@@ -36,7 +36,7 @@ router.post("/create", verifyToken, async (req, res) => {
 });
 
 // ✅ Fetch all blogs
-router.get("/", verifyToken, async (req, res) => {
+router.get("/",  async (req, res) => {
     try {
         const posts = await Post.find().populate("userId", "username");
         res.status(200).json(posts);
