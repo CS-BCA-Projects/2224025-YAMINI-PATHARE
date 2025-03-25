@@ -43,9 +43,7 @@ const Navbar = () => {
             {/* If user is logged in, show Logout & Home */}
             {user ? (
               <>
-                <li className="nav-item">
-                  <Link className="nav-link text-dark fw-semibold px-3" to="/">Home</Link>
-                </li>
+               
                 <li className="nav-item">
                   <button className="btn btn-danger fw-semibold px-3" onClick={handleLogout}>
                     Logout

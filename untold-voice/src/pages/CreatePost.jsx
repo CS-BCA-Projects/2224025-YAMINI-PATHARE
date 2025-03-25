@@ -2,31 +2,23 @@ import "./CreatePost.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
-
+ 
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [content, setContent] = useState(""); // ✅ Added content field
+  const [content, setContent] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const { data } = await axios.post(
         "http://localhost:8000/api/posts/create",
+        { title, desc, content },
         {
-          title,
-          desc,
-          content, // ✅ Ensure content is included
-        },
-        {
-          withCredentials: true, // ✅ Important: This ensures cookies (token) are sent automatically
-          headers: {
-            "Content-Type": "application/json",
-          },
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
         }
       );
 
@@ -39,31 +31,42 @@ const CreatePost = () => {
 
   return (
     <div>
-      <h2>Create a New Post</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Short Description"
-          value={desc}
-          onChange={(e) => setDesc(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          required
-        />
-        <button type="submit">Create</button>
-      </form>
+      {/* Background Video */}
+      <div className="video-container">
+        <video autoPlay loop muted>
+        <source src="/New.mp4" type="video/mp4" />
+        </video>
+      </div>
+
+      {/* Create Post Form */}
+      <div className="create-post-container">
+        <h2>Create a New Post</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+          <textarea
+            placeholder="Short Description"
+            value={desc}
+            onChange={(e) => setDesc(e.target.value)}
+            required
+          />
+          <textarea
+            placeholder="Content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            required
+          />
+          <button type="submit">Create</button>
+        </form>
+      </div>
     </div>
   );
 };
 
 export default CreatePost;
+

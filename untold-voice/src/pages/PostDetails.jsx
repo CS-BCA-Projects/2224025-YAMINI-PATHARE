@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Comments from "../components/Comments"; // Import the Comments component
 
 const PostDetails = () => {
   const { id } = useParams();
@@ -60,6 +61,11 @@ const PostDetails = () => {
           {/* Full Blog Content */}
           <div className="mt-4">
             <p style={{ textAlign: "justify", lineHeight: "1.8" }}>{post.content}</p>
+          </div>
+
+          {/* Comments Section */}
+          <div className="mt-5">
+            <Comments postId={id} />
           </div>
 
           {/* Back Button */}
