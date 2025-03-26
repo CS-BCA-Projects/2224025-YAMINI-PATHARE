@@ -9,6 +9,8 @@ const MyBlogs = () => {
   const [myBlogs, setMyBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [category, setCategory] = useState("All");
+  const categories = ["All", "Personal Stories", "History", "Equality", "Racism", "Kind", "Sad","other"];
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -40,28 +42,30 @@ const MyBlogs = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this blog?")) return;
-  
+
     try {
       const response = await fetch(`http://localhost:8000/api/posts/${id}`, {
         method: "DELETE",
-        credentials: "include", // ✅ Important for sending cookies
+        credentials: "include",
         headers: {
-          "Authorization": `Bearer ${localStorage.getItem("token")}`, // ✅ Send JWT token
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error("Failed to delete blog");
       }
-  
-      // ✅ Remove deleted blog from state
+
       setMyBlogs(myBlogs.filter((blog) => blog._id !== id));
     } catch (error) {
       console.error("Error deleting blog:", error);
       alert("Failed to delete the blog. Please try again.");
     }
   };
-  
+
+  // ✅ Filter blogs based on category selection
+  const filteredBlogs =
+    category === "All" ? blogs : blogs.filter((blog) => blog.category === category);
 
   return (
     <div className="container-fluid min-vh-100 bg-light">
@@ -125,14 +129,27 @@ const MyBlogs = () => {
                 )}
               </section>
 
+              {/* Select Category */}
+              <div className="mb-4">
+                <label className="form-label">Filter by Category:</label>
+                <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Community Blogs */}
               <section className="mt-5">
                 <h2 className="text-secondary mb-3">Community Blogs</h2>
-                {blogs.length === 0 ? (
-                  <p className="text-muted">No blogs from other users yet.</p>
+
+                {filteredBlogs.length === 0 ? (
+                  <p className="text-muted">No blogs available in this category.</p>
                 ) : (
                   <div className="row">
-                    {blogs.map((blog) => (
+                    {filteredBlogs.map((blog) => (
                       <div key={blog._id} className="col-md-6 col-lg-4 mb-4">
                         <div className="card shadow-sm">
                           <div className="card-body">

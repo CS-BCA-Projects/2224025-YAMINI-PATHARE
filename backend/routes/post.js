@@ -8,9 +8,9 @@ const router = express.Router();
 // ✅ Create Post
 router.post("/create", verifyToken, async (req, res) => {
     try {
-        const { title, desc, content } = req.body;
+        const { title, desc, content, category } = req.body;
 
-        if (!title || !desc || !content) {
+        if (!title || !desc || !content || !category) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
@@ -23,6 +23,7 @@ router.post("/create", verifyToken, async (req, res) => {
             title,
             desc,
             content,
+            category,
             author: user.username,
             userId: user._id,
         });
@@ -38,6 +39,16 @@ router.post("/create", verifyToken, async (req, res) => {
 // ✅ Fetch all blogs
 router.get("/",  async (req, res) => {
     try {
+        const { search, category } = req.query;
+        let query = {};
+    
+        if (search) {
+          query.title = { $regex: search, $options: 'i' }; // Case-insensitive search
+        }
+    
+        if (category) {
+          query.category = category; // Exact category match
+        }
         const posts = await Post.find().populate("userId", "username");
         res.status(200).json(posts);
     } catch (error) {
