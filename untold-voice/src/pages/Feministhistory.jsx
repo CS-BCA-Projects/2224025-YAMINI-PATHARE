@@ -19,14 +19,7 @@ const feministEvents = [
       "Focused on workplace equality, reproductive rights, and dismantling gender stereotypes. Second-wave feminism was a period of feminist activity that began in the early 1960s and lasted roughly two decades. Unlike the first wave of feminism, which focused primarily on securing women’s right to vote, the second wave lobbied for equality in all aspects of women’s experience, including employment, politics, marriage, family, education, and sexuality. It addressed issues such as domestic violence, reproductive rights, female sexuality, and pay equality. However, the movement splintered after criticism that it had focused on white women to the exclusion of everyone else",
     image: "/Secondwave.jpg",
   },
-  {
-    id: 3,
-    title: "Malala Yousafzai's Activism",
-    year: "2012-Present",
-    description:
-      "Fighting for girls' education worldwide after surviving an assassination attempt. At age eleven, Malala Yousafzai was already advocating for the rights of women and girls. As an outspoken proponent for girls right to education, Yousafzai was often in danger because of her beliefs. However, even after being shot by the Taliban, she continued her activism and founded the Malala Fund with her father. By age seventeen, Yousafzai became the youngest person to receive the Nobel Peace Prize for her work.",
-    image: "/malala.png",
-  },
+ 
   {
     id: 4,
     title: "MeToo Movement",

@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import Comment from "../models/Comment.js";
 import verifyToken from "../verifyToken.js";
 
@@ -10,13 +11,13 @@ const router = express.Router();
  */
 router.get("/:postId", async (req, res) => {
   try {
-    const comments = await Comment.find({ postId: req.params.postId })
-      .populate("userId", "username email") // Populating user details (username & email)
-      .sort({ createdAt: -1 }); // Sorting comments by latest first
-
-    if (!comments) {
-      return res.status(404).json({ message: "No comments found" });
+    if (!mongoose.Types.ObjectId.isValid(req.params.postId)) {
+      return res.status(400).json({ message: "Invalid postId" });
     }
+
+    const comments = await Comment.find({ postId: req.params.postId })
+      .populate("userId", "username email") // ✅ Populating user details
+      .sort({ createdAt: -1 });
 
     res.status(200).json(comments);
   } catch (err) {
@@ -31,22 +32,28 @@ router.get("/:postId", async (req, res) => {
  */
 router.post("/:postId", verifyToken, async (req, res) => {
   try {
-    const { text } = req.body;
+    console.log("User from token:", req.user);  // ✅ Debugging ke liye
+    
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized. Please log in." });
+    }
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.postId)) {
+      return res.status(400).json({ message: "Invalid postId" });
+    }
+
+    const { text } = req.body;
     if (!text) {
       return res.status(400).json({ message: "Comment text is required" });
     }
 
-    // Create and save the new comment
     const newComment = new Comment({
-      text, // ✅ Fixed incorrect field name
+      text,
       postId: req.params.postId,
       userId: req.user.id,
     });
 
     const savedComment = await newComment.save();
-
-    // Populate user details before sending response
     const populatedComment = await Comment.findById(savedComment._id).populate("userId", "username email");
 
     console.log("✅ New comment added:", populatedComment);
@@ -63,19 +70,20 @@ router.post("/:postId", verifyToken, async (req, res) => {
  */
 router.delete("/:commentId", verifyToken, async (req, res) => {
   try {
-    const comment = await Comment.findById(req.params.commentId);
+    if (!mongoose.Types.ObjectId.isValid(req.params.commentId)) {
+      return res.status(400).json({ message: "Invalid commentId" });
+    }
 
+    const comment = await Comment.findById(req.params.commentId);
     if (!comment) {
       return res.status(404).json({ message: "Comment not found" });
     }
 
-    // Check if the user is the owner of the comment
     if (comment.userId.toString() !== req.user.id) {
       return res.status(403).json({ message: "Unauthorized to delete this comment" });
     }
 
     await Comment.findByIdAndDelete(req.params.commentId);
-
     res.status(200).json({ message: "Comment deleted successfully" });
   } catch (err) {
     console.error("Error deleting comment:", err);

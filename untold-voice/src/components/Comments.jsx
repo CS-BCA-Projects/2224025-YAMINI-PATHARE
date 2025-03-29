@@ -10,7 +10,7 @@ const Comments = ({ postId }) => {
   useEffect(() => {
     axios.get(`http://localhost:8000/api/comments/${postId}`)
       .then(({ data }) => setComments(data))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Error fetching comments:", err));
   }, [postId]);
 
   const handleCommentSubmit = async (e) => {
@@ -21,13 +21,16 @@ const Comments = ({ postId }) => {
       const { data } = await axios.post(
         `http://localhost:8000/api/comments/${postId}`,
         { text },
-        { withCredentials: true }
+        { 
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${user.token}` } // ✅ Added Authorization Token
+        }
       );
 
       setComments([data, ...comments]); // Add new comment at the top
       setText("");
     } catch (err) {
-      console.error(err);
+      console.error("Error posting comment:", err.response?.data || err.message);
     }
   };
 
@@ -54,7 +57,7 @@ const Comments = ({ postId }) => {
               </div>
               <div className="flex-grow-1">
                 <strong className="text-dark">{comment.userId.username}</strong>
-                <p className="mb-1">{comment.Comment}</p>
+                <p className="mb-1">{comment.text}</p>  {/* ✅ Fixed: 'comment.Comment' to 'comment.text' */}
                 <small className="text-muted">{new Date(comment.createdAt).toLocaleString()}</small>
               </div>
             </div>
