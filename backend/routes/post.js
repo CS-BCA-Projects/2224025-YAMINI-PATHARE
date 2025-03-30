@@ -82,29 +82,6 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-// ✅ Update Post
-router.put("/:id", verifyToken, async (req, res) => {
-    try {
-        const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).json({ message: "Post not found" });
-
-        if (post.userId.toString() !== req.user.id) {
-            return res.status(403).json({ message: "Unauthorized to update this post" });
-        }
-
-        const { title, desc, content } = req.body;
-
-        post.title = title || post.title;
-        post.desc = desc || post.desc;
-        post.content = content || post.content;
-
-        const updatedPost = await post.save();
-        res.status(200).json({ message: "Post updated successfully", post: updatedPost });
-    } catch (err) {
-        console.error("Error updating post:", err);
-        res.status(500).json({ message: "Internal Server Error" });
-    }
-});
 
 // ✅ Delete Post
 router.delete("/:id", verifyToken, async (req, res) => {

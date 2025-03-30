@@ -4,6 +4,7 @@
   text-align: center;
   background: linear-gradient(135deg, #8e44ad, #f39c12);
   min-height: 100vh;
+  padding: 20px;
 }
 
 /* Hero Section */
@@ -14,6 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .hero-video {
@@ -26,16 +28,17 @@
 
 .hero-text {
   z-index: 1;
-  text-align: center;
   background: rgba(0, 0, 0, 0.5);
   padding: 20px;
   border-radius: 10px;
+  max-width: 80%;
 }
 
 /* Features Section */
 .features {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 20px;
   margin-top: 40px;
 }
@@ -99,4 +102,29 @@
 .error-message {
   color: red;
   font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero {
+    height: 300px;
+  }
+
+  .hero-text {
+    font-size: 14px;
+    max-width: 90%;
+  }
+
+  .features {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .feature-card {
+    max-width: 90%;
+  }
+
+  .blog-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
 }
