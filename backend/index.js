@@ -26,7 +26,7 @@ const corsOptions = {
     credentials: true, // ✅ Allow credentials (cookies, headers)
 };
 app.use(cors(corsOptions));
-
+console.log("frontend url : ", process.env.FRONTEND_URL);
 console.log("PORT:", process.env.PORT);
 console.log("MONGO_URL:", process.env.MONGO_URL);
 
