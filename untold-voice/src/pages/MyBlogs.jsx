@@ -20,11 +20,11 @@ const MyBlogs = () => {
           credentials: "include",
         };
 
-        const myResponse = await fetch("http://localhost:8000/api/posts/myblogs", options);
+        const myResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts/myblogs`, options);
         if (!myResponse.ok) throw new Error("Failed to fetch user blogs");
         const userBlogs = await myResponse.json();
 
-        const response = await fetch("http://localhost:8000/api/posts", options);
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, options);
         if (!response.ok) throw new Error("Failed to fetch all blogs");
         const allBlogs = await response.json();
 
@@ -44,7 +44,7 @@ const MyBlogs = () => {
     if (!window.confirm("Are you sure you want to delete this blog?")) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/posts/${id}`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts/${id}`, {
         method: "DELETE",
         credentials: "include",
         headers: {

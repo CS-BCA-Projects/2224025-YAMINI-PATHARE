@@ -18,7 +18,7 @@ const Register = () => {
     setError(null);
 
     try {
-      await axios.post("http://localhost:8000/api/auth/register", {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/register`, {
         username,
         email,
         password,

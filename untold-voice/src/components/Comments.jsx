@@ -12,7 +12,7 @@ const Comments = ({ postId }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const { data } = await axios.get(`http://localhost:8000/api/comments/${postId}`);
+        const { data } = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/comments/${postId}`);
         setComments(data);
       } catch (err) {
         console.error("Error fetching comments:", err);
@@ -31,7 +31,7 @@ const Comments = ({ postId }) => {
 
     try {
       const { data } = await axios.post(
-        `http://localhost:8000/api/comments/${postId}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/comments/${postId}`,
         { text },
         {
           withCredentials: true,

@@ -18,10 +18,12 @@ const Login = () => {
     setError(null);
 
     console.log("Sending login request:", { email, password });
+    console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
+
 
     try {
         const { data } = await axios.post(
-            "http://localhost:8000/api/auth/login",
+            `${process.env.REACT_APP_BACKEND_URL}/api/auth/login`,
             { email, password },
             { withCredentials: true }
         );

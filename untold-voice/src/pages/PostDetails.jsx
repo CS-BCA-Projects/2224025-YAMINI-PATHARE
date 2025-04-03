@@ -11,7 +11,7 @@ const PostDetails = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/api/posts/${id}`)
+      .get(`${process.env.REACT_APP_BACKEND_URL}/api/posts/${id}`)
       .then(({ data }) => {
         setPost(data);
         setLoading(false);

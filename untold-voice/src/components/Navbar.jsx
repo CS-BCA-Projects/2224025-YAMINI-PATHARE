@@ -10,7 +10,7 @@ const Navbar = () => {
   // Logout Function
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8000/api/auth/logout", {}, { withCredentials: true });
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/auth/logout`, {}, { withCredentials: true });
       setUser(null); // Clear user context
       navigate("/"); // Redirect to Home
     } catch (error) {

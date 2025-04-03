@@ -16,7 +16,7 @@ const CreatePost = () => {
     e.preventDefault();
     try {
       const { data } = await axios.post(
-        "http://localhost:8000/api/posts/create",
+        `${process.env.REACT_APP_BACKEND_URL}/api/posts/create`,
         { title, desc, content, category },
         {
           withCredentials: true,
