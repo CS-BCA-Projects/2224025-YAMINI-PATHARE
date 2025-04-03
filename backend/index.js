@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 const corsOptions = {
-    origin: "http://localhost:3000", // ✅ Your frontend URL
+    origin: process.env.FRONTEND_URL, // ✅ Your frontend URL
     credentials: true, // ✅ Allow credentials (cookies, headers)
 };
 app.use(cors(corsOptions));
