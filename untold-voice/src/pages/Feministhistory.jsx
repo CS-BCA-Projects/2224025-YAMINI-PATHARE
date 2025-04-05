@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap CSS
-import "./FeministHistory.css"; // Optional custom styles
+import "../styles/FeministHistory.css"; // Optional custom styles
 
 const feministEvents = [
   {
