@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext"; // ✅ Correct Context Import
 import "../styles/MyLogin.css"; // ✅ Ensure CSS is applied
+import "../styles/indexmain.css"; // ✅ Ensure CSS is applied
 
 const Login = () => {
   const [email, setEmail] = useState("");
