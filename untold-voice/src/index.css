@@ -16,11 +16,11 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #f78cdc;
   text-decoration: inherit;
 }
 a:hover {
-  color: #535bf2;
+  color: #9095f1;
 }
 
 body {
@@ -66,4 +66,13 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+.Toastify__toast-container {
+  z-index: 9999 !important;
+}
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
 }

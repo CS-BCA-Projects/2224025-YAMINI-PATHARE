@@ -1,92 +1,110 @@
-/* CreatePost.css */
+/* Container to allow video + form layout */
+.create-post-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background: transparent;
+  overflow: hidden;
+  z-index: 0;
+}
 
-/* Fullscreen Background Video Container - Starts below Navbar */
+/* Fullscreen Background Video */
 .video-container {
-    position: fixed;
-    top: 60px; /* Adjusted to start below navbar */
-    left: 0;
-    width: 100vw;
-    height: calc(100vh - 60px); /* Adjusted height to fit below navbar */
-    overflow: hidden;
-    z-index: -1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .video-container video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(60%);
-  }
-  
-  /* Form Container - Moved to Extreme Left and Lowered */
+  position: fixed;
+  top: 60px; /* Adjust based on your navbar height */
+  left: 0;
+  width: 100vw;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+  z-index: -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(60%);
+}
+
+/* Glassmorphic Form Container */
+.create-post-container {
+  position: absolute;
+  top: 60%;
+  left: 5%;
+  transform: translateY(-50%);
+  max-width: 450px;
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  color: #fff;
+  z-index: 1;
+}
+
+/* Heading */
+.create-post-container h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Input & Textarea */
+.create-post-container input,
+.create-post-container textarea,
+.create-post-container select {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+}
+
+/* Textarea size */
+.create-post-container textarea {
+  resize: none;
+  height: 120px;
+}
+
+/* Submit Button */
+.create-post-container button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: #ff6b81;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.create-post-container button:hover {
+  background: #ff4757;
+}
+
+/* Toastify container fix */
+.Toastify__toast-container {
+  z-index: 9999 !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
   .create-post-container {
-    position: absolute;
-    top: 60%; /* Lowered for better alignment */
-    left: 5%; /* Moved further left */
-    transform: translateY(-50%);
-    max-width: 450px;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
-    text-align: center;
-    color: #fff;
+    width: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
-  
-  /* Form title */
+
   .create-post-container h2 {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
+    font-size: 20px;
   }
-  
-  /* Input fields */
-  .create-post-container input,
-  .create-post-container textarea {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    background: rgba(255, 255, 255, 0.8);
-    color: #333;
-  }
-  
-  /* Textarea styling */
-  .create-post-container textarea {
-    resize: none;
-    height: 120px;
-  }
-  
-  /* Submit button */
-  .create-post-container button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    background: #ff6b81;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .create-post-container button:hover {
-    background: #ff4757;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .create-post-container {
-      width: 90%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-  }
-  
+}
