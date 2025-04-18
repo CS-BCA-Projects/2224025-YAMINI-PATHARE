@@ -17,30 +17,32 @@ const Login = () => {
     setLoading(true);
     setError(null);
 
-    console.log("Sending login request:", { email, password });
-    console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
-
-
     try {
-        const { data } = await axios.post(
-            `${process.env.REACT_APP_BACKEND_URL}/api/auth/login`,
-            { email, password },
-            { withCredentials: true }
-        );
+      const { data } = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-        console.log("Login successful:", data);
+      console.log("Login successful:", data);
 
-        setUser(data);
-        localStorage.setItem("user", JSON.stringify(data));
+      // ✅ Store token securely
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
-        navigate("/myblogs");
+      
+     setUser(data.user);
+     localStorage.setItem("user", JSON.stringify(data.user));
+      
+      navigate("/myblogs");
     } catch (err) {
-        console.error("Login error:", err.response?.data || err.message);
-        setError(err.response?.data?.message || "Invalid credentials, try again.");
+      console.error("Login error:", err.response?.data || err.message);
+      setError(err.response?.data?.message || "Invalid credentials, try again.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
+  };
 
   return (
     <div className="login-container">

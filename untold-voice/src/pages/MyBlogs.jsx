@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState, useContext } from "react";
 import { Link } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
@@ -11,35 +10,61 @@ const MyBlogs = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [category, setCategory] = useState("All");
-  const categories = ["All", "Personal Stories", "History", "Equality", "Racism", "Kind", "Sad","other"];
+  const [joined, setJoined] = useState(false);
+  const [message, setMessage] = useState("");
+  const [members, setMembers] = useState([]);
 
+  const categories = [
+    "All",
+    "Personal Stories",
+    "History",
+    "Equality",
+    "Racism",
+    "Kind",
+    "Sad",
+    "other"
+  ];
+
+  // Fetch blogs and member list
   useEffect(() => {
-    const fetchBlogs = async () => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("token");
+
       try {
         const options = {
           method: "GET",
-          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         };
 
         const myResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts/myblogs`, options);
-        if (!myResponse.ok) throw new Error("Failed to fetch user blogs");
         const userBlogs = await myResponse.json();
 
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts`, options);
-        if (!response.ok) throw new Error("Failed to fetch all blogs");
         const allBlogs = await response.json();
+
+        const memberResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/community/members`, options);
+        const memberData = await memberResponse.json();
 
         setMyBlogs(userBlogs);
         setBlogs(allBlogs);
+        setMembers(memberData);
+
+        const alreadyJoined = memberData.some((m) => m.userId?.email === user?.email);
+        setJoined(alreadyJoined);
       } catch (error) {
-        console.error("Error fetching blogs:", error);
+        console.error("Error:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchBlogs();
-  }, []);
+
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this blog?")) return;
@@ -47,7 +72,6 @@ const MyBlogs = () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/posts/${id}`, {
         method: "DELETE",
-        credentials: "include",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -64,9 +88,42 @@ const MyBlogs = () => {
     }
   };
 
-  // ✅ Filter blogs based on category selection
+  const handleJoin = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/community/join`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user?._id,
+          name: user?.username,
+          email: user?.email,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage(data.message);
+        setJoined(true);
+        setMembers((prev) => [...prev, { userId: { _id: user._id, username: user.username, email: user.email } }]);
+        alert("Successfully joined the community!");
+      } else {
+        alert(data.message || "Failed to join.");
+      }
+    } catch (error) {
+      console.error("Error joining community:", error);
+    }
+  };
+
   const filteredBlogs =
-    category === "All" ? blogs : blogs.filter((blog) => blog.category === category);
+    category === "All"
+      ? blogs
+      : blogs.filter((blog) => blog.category === category);
 
   return (
     <div className="container-fluid min-vh-100 bg-light">
@@ -89,6 +146,41 @@ const MyBlogs = () => {
           <Link to="/login" className="btn btn-primary mt-4 w-100">
             ⬅ Back to Home
           </Link>
+
+          {/* Join Community Section */}
+          <div className="mt-4 p-3 bg-light border rounded text-center">
+            {joined ? (
+              <p className="text-success">🌟 You are part of the community!</p>
+            ) : (
+              <>
+                <p className="text-muted">Want to be part of our vibrant space?</p>
+                <button
+                  onClick={handleJoin}
+                  className="btn btn-pink w-100 text-white"
+                  style={{ backgroundColor: "#d63384" }}
+                >
+                  💜 Join Our Community
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Community Members */}
+          <div className="mt-4">
+            <h5 className="text-primary">👥 Community Members</h5>
+            {Array.isArray(members) ? (
+              <ul className="list-group small">
+                {members.map((member) => (
+                  <li key={member._id} className="list-group-item">
+                    {member.userId?.username || "Unknown"} <br />
+                    <small className="text-muted">{member.userId?.email || "No email"}</small>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-muted">No members found or error fetching data.</p>
+            )}
+          </div>
         </aside>
 
         {/* Main Content */}
@@ -130,10 +222,14 @@ const MyBlogs = () => {
                 )}
               </section>
 
-              {/* Select Category */}
+              {/* Category Filter */}
               <div className="mb-4">
                 <label className="form-label">Filter by Category:</label>
-                <select className="form-select" value={category} onChange={(e) => setCategory(e.target.value)}>
+                <select
+                  className="form-select"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
                       {cat}
@@ -145,7 +241,6 @@ const MyBlogs = () => {
               {/* Community Blogs */}
               <section className="mt-5">
                 <h2 className="text-secondary mb-3">Community Blogs</h2>
-
                 {filteredBlogs.length === 0 ? (
                   <p className="text-muted">No blogs available in this category.</p>
                 ) : (
@@ -157,7 +252,9 @@ const MyBlogs = () => {
                             <h5 className="card-title text-primary">{blog.title}</h5>
                             <p className="card-text text-secondary">{blog.desc}</p>
                             <p className="card-text">
-                              <small className="text-muted">By: {blog.userId?.username || "Unknown"}</small>
+                              <small className="text-muted">
+                                By: {blog.userId?.username || "Unknown"}
+                              </small>
                             </p>
                             <Link to={`/post/${blog._id}`} className="btn btn-outline-primary">
                               Read More →

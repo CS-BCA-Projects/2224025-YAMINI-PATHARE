@@ -14,6 +14,8 @@ import userRoute from "./routes/user.js";
 import postRoute from "./routes/post.js";  // Post Routes for Create, Edit, etc.
 import commentRoute from "./routes/comments.js";
 import commentModels from "./models/Comment.js";
+import communityRoutes from './routes/community.js';
+
 
 // Define __dirname in ES Modules
 const __filename = fileURLToPath(import.meta.url);
@@ -44,6 +46,8 @@ app.use('/api/auth', authRoute);
 app.use('/api/users', userRoute);
 app.use('/api/posts', postRoute);  // Use Post Routes
 app.use('/api/comments', commentRoute);
+app.use('/api/community', communityRoutes);
+
 
 // Upload Image (Optional, if needed for posts)
 const storage = multer.diskStorage({
